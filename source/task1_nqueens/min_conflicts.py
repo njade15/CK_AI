@@ -1,9 +1,9 @@
-"""Baseline Min-Conflicts: independent random rows, random ties, no restart."""
+"""Shared Min-Conflicts loop with interchangeable variable selection."""
 
 from dataclasses import dataclass
 from random import Random
 from time import perf_counter
-from typing import Iterable
+from typing import Iterable, Sequence
 
 from .models import NQueensProblem, Position, SolveResult, SolveStatus, Statistic
 from .validator import SolutionValidator
@@ -76,14 +76,48 @@ class MinConflictsBoard:
         return tuple((row, column) for column, row in enumerate(self._rows))
 
 
+class RandomConflictedSelector:
+    """Uniformly choose from the loop's current conflicted columns."""
+
+    def select_column(
+        self, board: MinConflictsBoard, conflicted: Sequence[int], rng: Random
+    ) -> int | None:
+        return rng.choice(conflicted) if conflicted else None
+
+
+class MaxConflictedSelector:
+    """Choose a maximum-conflict queen, breaking ties uniformly at random."""
+
+    def select_column(
+        self, board: MinConflictsBoard, conflicted: Sequence[int], rng: Random
+    ) -> int | None:
+        if not conflicted:
+            return None
+        scored = [(column, board.conflicts(column)) for column in conflicted]
+        maximum = max(score for _, score in scored)
+        candidates = [column for column, score in scored if score == maximum]
+        return rng.choice(candidates)
+
+
+_VARIABLE_SELECTORS = {
+    "random_conflicted": RandomConflictedSelector(),
+    "max_conflicted": MaxConflictedSelector(),
+}
+
+
 @dataclass(frozen=True)
 class MinConflictsSolver:
     problem: NQueensProblem
     seed: int | None = None
     max_steps: int = 10000
     initial_state: tuple[int, ...] | None = None
+    strategy: str = "random_conflicted"
 
     def __post_init__(self) -> None:
+        if not isinstance(self.strategy, str):
+            raise TypeError("strategy must be a string")
+        if self.strategy not in _VARIABLE_SELECTORS:
+            raise ValueError("strategy must be random_conflicted or max_conflicted")
         if isinstance(self.max_steps, bool) or not isinstance(self.max_steps, int):
             raise TypeError("max_steps must be an integer, excluding bool")
         if self.max_steps < 0:
@@ -106,6 +140,7 @@ class MinConflictsSolver:
         """
         start = perf_counter()
         statistics: dict[str, Statistic] = {
+            "strategy": self.strategy,
             "seed": self.seed if self.seed is not None else "system",
             "max_steps": self.max_steps,
             "steps": 0,
@@ -115,6 +150,7 @@ class MinConflictsSolver:
         solution = None
         message = None
         try:
+            selector = _VARIABLE_SELECTORS[self.strategy]
             rng = Random(self.seed)
             rows = self.initial_state
             if rows is None:
@@ -135,7 +171,9 @@ class MinConflictsSolver:
                     status = SolveStatus.LIMIT_REACHED
                     message = "Step budget exhausted; unsatisfiability is not established"
                     break
-                column = rng.choice(conflicted)
+                column = selector.select_column(board, conflicted, rng)
+                if column is None:
+                    raise ValueError("selector returned no column for a conflicted board")
                 scores = [board.conflicts(column, row) for row in range(self.problem.n)]
                 minimum = min(scores)
                 best_rows = [row for row, score in enumerate(scores) if score == minimum]

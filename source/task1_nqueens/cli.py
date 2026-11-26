@@ -10,18 +10,24 @@ from .sat_solver import SATNQueensSolver
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Solve N-Queens using SAT or baseline Min-Conflicts")
+    parser = argparse.ArgumentParser(description="Solve N-Queens using SAT or Min-Conflicts")
     parser.add_argument("n", type=int, help="positive board size N")
     parser.add_argument("--method", choices=("sat", "min-conflicts"), default="sat")
     parser.add_argument("--seed", type=int, help="Min-Conflicts private RNG seed")
     parser.add_argument("--max-steps", type=int, help="Min-Conflicts update budget (default: 10000)")
     parser.add_argument("--initial-state", help="Min-Conflicts comma-separated rows, one per column")
+    parser.add_argument(
+        "--strategy", choices=("random_conflicted", "max_conflicted"),
+        help="Min-Conflicts variable selection (default: random_conflicted)",
+    )
     args = parser.parse_args(argv)
     try:
         problem = NQueensProblem(args.n)
         if args.method == "sat":
-            if any(value is not None for value in (args.seed, args.max_steps, args.initial_state)):
-                parser.error("--seed, --max-steps and --initial-state require --method min-conflicts")
+            if any(value is not None for value in (
+                args.seed, args.max_steps, args.initial_state, args.strategy
+            )):
+                parser.error("Min-Conflicts options require --method min-conflicts")
             solver = SATNQueensSolver(problem)
         else:
             initial_state = None
@@ -32,6 +38,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 seed=args.seed,
                 max_steps=args.max_steps if args.max_steps is not None else 10000,
                 initial_state=initial_state,
+                strategy=args.strategy if args.strategy is not None else "random_conflicted",
             )
     except (TypeError, ValueError) as error:
         parser.error(str(error))

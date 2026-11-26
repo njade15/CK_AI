@@ -47,11 +47,15 @@ Nghiệm thu: test tích hợp SAT/UNSAT, hành vi giới hạn và lỗi; đố
 
 Đã triển khai Min-Conflicts cơ sở: vector hàng theo cột, khởi tạo ngẫu nhiên độc lập, RNG riêng, chọn quân xung đột ngẫu nhiên và phá hòa ngẫu nhiên giữa mọi hàng tối ưu. Có seed, max_steps và trạng thái khởi tạo tùy chọn. Một bước là một phép gán, kể cả không đổi hàng; kiểm tra trước bước đầu và sau cập nhật cuối. Hết bước trả LIMIT_REACHED, nghiệm qua validator độc lập. Chi tiết và ví dụ N=4 trong [MIN_CONFLICTS.md](MIN_CONFLICTS.md).
 
-Chưa triển khai restart hoặc heuristic đề xuất. Các cấu hình này chỉ được bổ sung ở giai đoạn được yêu cầu sau, tách rõ khỏi baseline. Chưa có benchmark so sánh hoặc giới hạn thời gian.
+Đã bổ sung heuristic `max_conflicted` và giữ `random_conflicted` làm mặc định. Hai selector dùng một vòng lặp chung, cùng chấm hàng, phá hòa hàng, khởi tạo và ngân sách. Trạng thái đầu được sao chép để benchmark về sau có thể cung cấp cùng vector cho hai bản độc lập. Chưa triển khai restart, benchmark so sánh hoặc giới hạn thời gian.
+
+Giả thuyết nghiên cứu: max_conflicted có thể giảm số bước nhưng phát sinh chi phí chọn biến; cần đo cả thời gian và tỷ lệ thành công trước khi kết luận. Chưa có số liệu so sánh để nói heuristic tốt hơn. Chi tiết thiết kế và cách chuẩn bị hai solver từ bản sao trạng thái đầu nằm trong [MIN_CONFLICTS.md](MIN_CONFLICTS.md).
 
 Nghiệm thu: test số xung đột, cập nhật trạng thái, khả năng lặp lại theo seed, hết giới hạn và xác nhận nghiệm bằng validator.
 
 Kết quả giai đoạn baseline ngày 26/11/2026 trên Windows/Python 3.12.10: toàn bộ 67 test Task 1 đạt bằng `python -m unittest discover -s tests -t . -v`, gồm 47 test trước đó và 20 test mới. Lần chạy đầu phát hiện một fixture CLI dùng nhầm cách biểu diễn hàng/cột; đã sửa fixture theo vector hàng theo cột và chạy lại toàn bộ đạt. `pip check` đạt; CLI thực tế N=4 với trạng thái `(1,3,0,0)`, seed=0, max_steps=1 trả SAT sau bước cuối; N=8 seed=42, max_steps=1000 trả SAT; trạng thái xung đột với max_steps=0 trả LIMIT_REACHED/exit code 3. Đây là kiểm tra chức năng, chưa phải benchmark; chưa kiểm tra trên macOS/Linux. Chưa push hoặc merge.
+
+Giai đoạn chiến lược chọn biến: đã chạy toàn bộ 81 test Task 1 trên Windows/Python 3.12.10 và đạt, gồm 14 test mới. Kiểm tra cực đại duy nhất, phá hòa cực đại, bàn hết xung đột, nghiệm qua validator, ngân sách 0, bản sao trạng thái đầu, tái lập và baseline mặc định vẫn giữ kết quả đã ghi ở giai đoạn trước. Chưa push hoặc merge, chưa kết luận hiệu năng.
 
 ## Giai đoạn 5 Thực nghiệm thực tế
 
