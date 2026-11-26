@@ -1,0 +1,3 @@
+# Task 1 foundation uses only the Python standard library (Python >= 3.10).
+# unittest is included with Python. No third-party dependencies at this stage.
+# Add SAT dependencies only when the SAT implementation stage is authorized.
