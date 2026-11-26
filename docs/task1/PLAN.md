@@ -16,7 +16,7 @@ Sau mỗi giai đoạn báo các tệp thay đổi, lệnh kiểm tra thực s�
 - [x] Viết kiểm thử lời giải N=4, các vi phạm ràng buộc, đầu vào sai, trạng thái kết quả và hiển thị.
 - [x] Xác nhận kiểm thử thực tế đạt trước commit; ghi kết quả trong báo cáo giai đoạn.
 
-Chưa triển khai solver hoặc benchmark ở giai đoạn này. Hướng dẫn môi trường và chạy test ở [README Task 1](../../source/task1_nqueens/README.md).
+Tại thời điểm hoàn thành giai đoạn 1 chưa triển khai solver hoặc benchmark. Hướng dẫn môi trường và chạy test ở [README Task 1](../../source/task1_nqueens/README.md).
 
 Đã chạy ngày 26/11/2026 trên Windows, Python 3.12.10 trong môi trường ảo:
 
@@ -31,15 +31,17 @@ Kết quả: dependency hiện không cần gói bên thứ ba; 27 test đạt. 
 
 Đối chiếu đầy đủ PDF đề chính thức và xác nhận quy định môn học, tiêu chí nghiệm thu, phiên bản thư viện và môi trường đánh giá. Nội dung tài liệu phân công là nguồn tham khảo nội bộ; không thay thế đề chính thức.
 
-Mô hình dự kiến: biến mệnh đề cho mỗi ô `(row, column)` biểu diễn có quân hậu. Diễn đạt chính xác số quân mỗi hàng/cột và ràng buộc không tấn công trên hai họ đường chéo; mô tả cách chuyển thành CNF và ánh xạ biến. Chọn cách mã hóa sau khi chốt yêu cầu; chưa tạo bộ mã hóa ở giai đoạn nền tảng.
+Đã triển khai mô hình theo yêu cầu cập nhật: biến mỗi ô, tọa độ từ 0, `id = r*N + c + 1`; đúng một hậu mỗi hàng và tối đa một mỗi cột/đường chéo, dùng mã hóa từng cặp. Không thêm at-least-one cho cột hoặc ràng buộc dư. [MODEL.md](MODEL.md) giải thích CNF N=4, công thức số mệnh đề và phạm vi đo thời gian.
 
 Nghiệm thu: kiểm thử ánh xạ, CNF trên bàn nhỏ và đối chiếu kết quả với validator độc lập; kiểm tra N=1, N=2/3 và N=4.
 
 ## Giai đoạn 3 PySAT và Glucose3
 
-Triển khai solver theo OOP, bổ sung dependency rõ phiên bản sau khi xác minh tương thích. Trả `SolveResult`, đo thời gian thực tế, lưu thống kê solver thực sự cung cấp. Chỉ dùng UNSAT khi đã chứng minh vô nghiệm; dừng theo ngân sách phải trả LIMIT_REACHED. Giải mã nghiệm thành tọa độ và kiểm tra bằng validator.
+Đã triển khai `SATNQueensSolver`, CLI và dependency `python-sat==1.9.dev25`. Trả `SolveResult`, đo thời gian thực tế bằng `perf_counter`, lấy bộ đếm Glucose3, giải mã và kiểm tra bằng validator, giải phóng solver trong `finally`. False trả UNSAT; unknown trả LIMIT_REACHED; lỗi trả ERROR. Hiện gọi solve không giới hạn, chưa có tùy chọn ngân sách.
 
 Nghiệm thu: test tích hợp SAT/UNSAT, hành vi giới hạn và lỗi; đối chiếu nghiệm với các trường hợp đã biết.
+
+Đã chạy toàn bộ 47 test Task 1 ngày 26/11/2026 trên Windows/Python 3.12.10 và đạt, gồm 27 test nền tảng. Glucose3 thực xác nhận N=1,4,8 có nghiệm hợp lệ và N=2,3 vô nghiệm. Số mệnh đề thực sinh khớp công thức N=1..12, riêng N=4 là 80. Nhánh unknown/lỗi/cleanup kiểm tra bằng mock; không coi đó là thí nghiệm tài nguyên thực tế. Chưa kiểm tra SAT trên macOS/Linux; chưa benchmark, chưa triển khai Min-Conflicts, chưa push hoặc merge giai đoạn này.
 
 ## Giai đoạn 4 Min-Conflicts và heuristic
 
