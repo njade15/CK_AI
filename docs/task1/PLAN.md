@@ -41,13 +41,17 @@ Nghiệm thu: kiểm thử ánh xạ, CNF trên bàn nhỏ và đối chiếu k�
 
 Nghiệm thu: test tích hợp SAT/UNSAT, hành vi giới hạn và lỗi; đối chiếu nghiệm với các trường hợp đã biết.
 
-Đã chạy toàn bộ 47 test Task 1 ngày 26/11/2026 trên Windows/Python 3.12.10 và đạt, gồm 27 test nền tảng. Glucose3 thực xác nhận N=1,4,8 có nghiệm hợp lệ và N=2,3 vô nghiệm. Số mệnh đề thực sinh khớp công thức N=1..12, riêng N=4 là 80. Nhánh unknown/lỗi/cleanup kiểm tra bằng mock; không coi đó là thí nghiệm tài nguyên thực tế. Chưa kiểm tra SAT trên macOS/Linux; chưa benchmark, chưa triển khai Min-Conflicts, chưa push hoặc merge giai đoạn này.
+Ở thời điểm nghiệm thu SAT, đã chạy toàn bộ 47 test Task 1 ngày 26/11/2026 trên Windows/Python 3.12.10 và đạt, gồm 27 test nền tảng. Glucose3 thực xác nhận N=1,4,8 có nghiệm hợp lệ và N=2,3 vô nghiệm. Số mệnh đề thực sinh khớp công thức N=1..12, riêng N=4 là 80. Nhánh unknown/lỗi/cleanup kiểm tra bằng mock; không coi đó là thí nghiệm tài nguyên thực tế. Chưa kiểm tra SAT trên macOS/Linux; tại mốc đó chưa benchmark hoặc triển khai Min-Conflicts, chưa push hoặc merge.
 
 ## Giai đoạn 4 Min-Conflicts và heuristic
 
-Triển khai thuật toán cơ sở, sau đó heuristic đề xuất; tách rõ từng cấu hình. Quy định ngân sách bước/thời gian, seed và restart để so sánh công bằng. Thất bại trong ngân sách trả LIMIT_REACHED, không tự kết luận UNSAT.
+Đã triển khai Min-Conflicts cơ sở: vector hàng theo cột, khởi tạo ngẫu nhiên độc lập, RNG riêng, chọn quân xung đột ngẫu nhiên và phá hòa ngẫu nhiên giữa mọi hàng tối ưu. Có seed, max_steps và trạng thái khởi tạo tùy chọn. Một bước là một phép gán, kể cả không đổi hàng; kiểm tra trước bước đầu và sau cập nhật cuối. Hết bước trả LIMIT_REACHED, nghiệm qua validator độc lập. Chi tiết và ví dụ N=4 trong [MIN_CONFLICTS.md](MIN_CONFLICTS.md).
+
+Chưa triển khai restart hoặc heuristic đề xuất. Các cấu hình này chỉ được bổ sung ở giai đoạn được yêu cầu sau, tách rõ khỏi baseline. Chưa có benchmark so sánh hoặc giới hạn thời gian.
 
 Nghiệm thu: test số xung đột, cập nhật trạng thái, khả năng lặp lại theo seed, hết giới hạn và xác nhận nghiệm bằng validator.
+
+Kết quả giai đoạn baseline ngày 26/11/2026 trên Windows/Python 3.12.10: toàn bộ 67 test Task 1 đạt bằng `python -m unittest discover -s tests -t . -v`, gồm 47 test trước đó và 20 test mới. Lần chạy đầu phát hiện một fixture CLI dùng nhầm cách biểu diễn hàng/cột; đã sửa fixture theo vector hàng theo cột và chạy lại toàn bộ đạt. `pip check` đạt; CLI thực tế N=4 với trạng thái `(1,3,0,0)`, seed=0, max_steps=1 trả SAT sau bước cuối; N=8 seed=42, max_steps=1000 trả SAT; trạng thái xung đột với max_steps=0 trả LIMIT_REACHED/exit code 3. Đây là kiểm tra chức năng, chưa phải benchmark; chưa kiểm tra trên macOS/Linux. Chưa push hoặc merge.
 
 ## Giai đoạn 5 Thực nghiệm thực tế
 
