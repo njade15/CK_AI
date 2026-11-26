@@ -1,0 +1,12 @@
+{
+  "label": "pipeline-smoke",
+  "sat_ns": [4, 8],
+  "sat_repeats": 1,
+  "sat_timeout_seconds": 5,
+  "mc_ns": [4, 8],
+  "mc_seeds": [0, 1],
+  "mc_max_steps": 100,
+  "mc_timeout_seconds": 5,
+  "total_budget_seconds": 60,
+  "restart": false
+}

@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from time import perf_counter
+from typing import Callable, Mapping
 
 from pysat.solvers import Glucose3
 
@@ -14,7 +15,9 @@ from .validator import SolutionValidator
 class SATNQueensSolver:
     problem: NQueensProblem
 
-    def solve(self) -> SolveResult:
+    def solve(
+        self, progress: Callable[[Mapping[str, Statistic]], None] | None = None
+    ) -> SolveResult:
         """Run one unrestricted solve. Total includes cleanup, excludes CLI I/O.
 
         Phase times measure elapsed wall time using perf_counter. Total starts
@@ -38,6 +41,8 @@ class SATNQueensSolver:
             statistics["num_variables"] = cnf.num_variables
             statistics.update({f"clauses_{name}": count for name, count in cnf.clause_counts.items()})
             statistics["clauses_total"] = len(cnf.clauses)
+            if progress is not None:
+                progress(dict(statistics))
 
             phase_start = perf_counter()
             try:
@@ -47,12 +52,16 @@ class SATNQueensSolver:
                 solver.append_formula(cnf.clauses)
             finally:
                 statistics["solver_initialization_seconds"] = perf_counter() - phase_start
+            if progress is not None:
+                progress(dict(statistics))
 
             phase_start = perf_counter()
             try:
                 outcome = solver.solve()
             finally:
                 statistics["solve_seconds"] = perf_counter() - phase_start
+            if progress is not None:
+                progress(dict(statistics))
             statistics.update({f"solver_{name}": value for name, value in solver.accum_stats().items()})
             if outcome is True:
                 model = solver.get_model()

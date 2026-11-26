@@ -118,6 +118,8 @@ Mọi khoảng thời gian đều đo bằng `time.perf_counter()`, đơn vị g
 
 `SolveResult.elapsed_seconds` bằng `total_seconds`. Tổng bao gồm ba pha trên cùng việc đếm/tổ chức thống kê, lấy model, giải mã, kiểm tra nghiệm, xử lý lỗi và giải phóng solver. Tổng không bao gồm import thư viện, tạo/kiểm tra `NQueensProblem`, tạo `SolveResult`, xử lý đối số CLI và in kết quả. Vì có các công việc ngoài ba pha, không yêu cầu tổng bằng đúng tổng ba thời gian pha.
 
+Solver nhận progress callback tùy chọn để benchmark gửi snapshot sau mỗi pha hoàn tất. Callback chạy ngoài ba khoảng đo pha, nhưng được tính trong tổng thuật toán. Khi parent dừng worker theo deadline, chỉ các snapshot đã nhận được lưu lại; không suy đoán thời gian pha bị ngắt. [BENCHMARK.md](BENCHMARK.md) định nghĩa timeout và wall time tiến trình riêng.
+
 Nếu một pha có lỗi, vẫn đo thời gian đã thực sự trôi qua của pha đó; pha chưa bắt đầu không có khóa thời gian. Không điền số 0 thay cho phép đo chưa thực hiện. CLI in 9 chữ số thập phân, không có nghĩa đồng hồ có độ chính xác tuyệt đối đến nano giây. Không dùng một lần chạy smoke test để kết luận hiệu năng hay khả năng mở rộng.
 
 ## Chạy và kiểm tra

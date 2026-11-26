@@ -64,3 +64,7 @@ Ví dụ chỉ in lời giải N=4 đã biết, không gọi solver, từ PowerS
 ```
 
 Đây là dữ liệu lời giải cố định để minh họa giao diện, không phải kết quả chạy solver. Xem [kế hoạch](../../docs/task1/PLAN.md) và [quy ước kết quả](../../results/task1/README.md).
+
+## Benchmark
+
+Xem [thiết kế, cấu hình và lệnh benchmark](../../docs/task1/BENCHMARK.md). Cài dependency biểu đồ bằng `python -m pip install -r requirements-benchmark.txt` từ gốc repository. Chạy smoke riêng trước, commit mã rồi chạy cấu hình chính thức từ working tree sạch. Pipeline lưu mọi lượt, dùng tiến trình con có deadline thực thi được, kiểm tra nghiệm và tự tạo CSV tổng hợp, báo cáo, biểu đồ, metadata và checksum. Chưa so trực tiếp thời gian SAT solve với tổng thời gian pipeline.

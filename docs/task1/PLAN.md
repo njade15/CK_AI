@@ -63,6 +63,8 @@ Chốt tập N ≥ 4, số lần lặp, seed, ngân sách và chỉ số so sán
 
 Nghiệm thu: tái chạy một tập nhỏ, kiểm tra toàn bộ nghiệm được tuyên bố SAT, phân tích tỷ lệ thành công, thời gian và giới hạn của so sánh.
 
+Đã chuẩn bị [pipeline benchmark](BENCHMARK.md), cấu hình smoke và cấu hình chính thức 325 lượt. Cấu hình chốt trước chạy: SAT N=4,8,16,32,64, 5 lượt/N, timeout 15 s; MC cùng N, seed 0..29, max_steps=5000, timeout 5 s/lượt, không restart; tổng ngân sách 600 s, một worker tuần tự. Timeout thực thi bằng terminate/kill tiến trình con. Toàn bộ 92 test đạt, gồm kiểm tra deadline thực tế. Smoke 10 lượt audit đạt (8 SAT hợp lệ, 2 LIMIT_REACHED), giữ mọi thất bại và N/A khi không có mẫu thành công. Mã/config được commit trước lượt chính thức; dữ liệu và phân tích sẽ commit riêng. Chưa push hoặc merge.
+
 ## Giai đoạn 6 Báo cáo và nghiệm thu cuối
 
 Viết phần mô hình, phương pháp, heuristic, kết quả và hạn chế bằng số liệu đã chạy. Kiểm tra lại định dạng báo cáo và gói nộp theo đề chính thức. Review phần Task 1, chạy test trên môi trường sạch rồi mới đề nghị merge tại bước nghiệm thu cuối.

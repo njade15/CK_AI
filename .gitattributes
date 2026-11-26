@@ -1,0 +1,2 @@
+# Preserve benchmark bytes so SHA256 checksums survive Git checkouts.
+results/task1/** -text
