@@ -1,0 +1,42 @@
+{
+  "source_commit": "2781502d6e92eefda54fdb6c772c8d65a40c0330",
+  "branch": "feature/task1-nqueens",
+  "working_tree_dirty": false,
+  "working_tree_status": [],
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "os": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu": "Intel(R) Core(TM) i7-14650HX",
+  "logical_cpu_count": 24,
+  "packages": {
+    "contourpy": "1.4.0",
+    "cycler": "0.12.1",
+    "fonttools": "4.69.1",
+    "kiwisolver": "1.5.1",
+    "matplotlib": "3.11.2",
+    "numpy": "2.5.5",
+    "packaging": "26.4",
+    "pillow": "13.0.0",
+    "pip": "25.0.1",
+    "pyparsing": "3.3.3",
+    "python-dateutil": "4.0.0",
+    "python-sat": "1.9.dev25",
+    "six": "1.17.0",
+    "tzdata": "2026.6"
+  },
+  "started_utc": "2026-11-26T09:09:05.523949+00:00",
+  "argv": [
+    "D:\\Workspace\\AI_cho_heo\\AI_CK\\source\\task1_nqueens\\benchmark.py",
+    "--config",
+    "docs/task1/benchmark_full.json",
+    "--output",
+    "results/task1/main-20261126"
+  ],
+  "planned_trials": 325,
+  "execution": "sequential spawn, one worker",
+  "timeout_scope": "before spawn until result receipt; bounded teardown included in observed wall",
+  "restart": false,
+  "sat_warmups": 0,
+  "finished_utc": "2026-11-26T09:09:57.048420+00:00",
+  "execution_seconds": 51.52277830000003
+}

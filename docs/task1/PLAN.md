@@ -65,6 +65,8 @@ Nghiệm thu: tái chạy một tập nhỏ, kiểm tra toàn bộ nghiệm đư
 
 Đã chuẩn bị [pipeline benchmark](BENCHMARK.md), cấu hình smoke và cấu hình chính thức 325 lượt. Cấu hình chốt trước chạy: SAT N=4,8,16,32,64, 5 lượt/N, timeout 15 s; MC cùng N, seed 0..29, max_steps=5000, timeout 5 s/lượt, không restart; tổng ngân sách 600 s, một worker tuần tự. Timeout thực thi bằng terminate/kill tiến trình con. Toàn bộ 92 test đạt, gồm kiểm tra deadline thực tế. Smoke 10 lượt audit đạt (8 SAT hợp lệ, 2 LIMIT_REACHED), giữ mọi thất bại và N/A khi không có mẫu thành công. Mã/config được commit trước lượt chính thức; dữ liệu và phân tích sẽ commit riêng. Chưa push hoặc merge.
 
+Đã chạy đủ 325 lượt chính thức bằng commit `2781502` từ working tree sạch, thực thi khoảng 51,5 s. Audit toàn bộ nghiệm và 150 cặp trạng thái đầu đạt: SAT 25/25 hợp lệ; MC 293/300 hợp lệ, 7 lượt hết bước; không timeout/lỗi/NOT_RUN. Đã giữ mọi lượt thất bại, mở kiểm tra ba biểu đồ và phân tích cả chi phí toàn bộ. [Kết quả](../../results/task1/main-20261126/REPORT.md) và [diễn giải](../../results/task1/main-20261126/ANALYSIS.md) lưu riêng với smoke. Chưa kiểm tra môi trường khác, chưa có restart hoặc thí nghiệm mở rộng; chưa push/merge.
+
 ## Giai đoạn 6 Báo cáo và nghiệm thu cuối
 
 Viết phần mô hình, phương pháp, heuristic, kết quả và hạn chế bằng số liệu đã chạy. Kiểm tra lại định dạng báo cáo và gói nộp theo đề chính thức. Review phần Task 1, chạy test trên môi trường sạch rồi mới đề nghị merge tại bước nghiệm thu cuối.

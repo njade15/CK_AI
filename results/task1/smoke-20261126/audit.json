@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "trials": 10,
+  "valid_solutions": 8,
+  "paired_mc_initial_states": 4,
+  "statuses": {
+    "SAT": 8,
+    "LIMIT_REACHED": 2
+  },
+  "source_commit": "65717c1da561474ecf72994cb4e74f349fc08ed2"
+}
