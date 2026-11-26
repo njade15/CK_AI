@@ -70,3 +70,7 @@ Nghiệm thu: tái chạy một tập nhỏ, kiểm tra toàn bộ nghiệm đư
 ## Giai đoạn 6 Báo cáo và nghiệm thu cuối
 
 Viết phần mô hình, phương pháp, heuristic, kết quả và hạn chế bằng số liệu đã chạy. Kiểm tra lại định dạng báo cáo và gói nộp theo đề chính thức. Review phần Task 1, chạy test trên môi trường sạch rồi mới đề nghị merge tại bước nghiệm thu cuối.
+
+Đã rà soát trước PR trên Windows/Python 3.12.10 trong venv mới: xem [VERIFICATION.md](VERIFICATION.md).
+Bổ sung audit phép đo và phân tích ghép cặp từ dữ liệu cũ, không đổi thuật toán hoặc phạm vi đo.
+Dữ liệu gốc vẫn gắn với commit `2781502`; chưa push/merge. Môi trường macOS/Linux và gói nộp cuối chưa nghiệm thu.

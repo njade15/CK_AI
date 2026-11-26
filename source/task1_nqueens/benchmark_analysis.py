@@ -89,6 +89,20 @@ def audit(rows, config, metadata):
             raise ValueError("unexecuted trial cannot claim a wall measurement")
         if row["status"] == "TIMEOUT" and row["algorithm_total_seconds"]:
             raise ValueError("interrupted trial cannot claim a completed algorithm total")
+        if row["status"] != "NOT_RUN":
+            if not row["timeout_seconds"] or not 0 < float(row["timeout_seconds"]) <= task["timeout_seconds"]:
+                raise ValueError("invalid effective timeout")
+        completed = row["status"] in {"SAT", "UNSAT", "LIMIT_REACHED"}
+        required = ["algorithm_total_seconds", "observed_wall_seconds"] if completed else []
+        if completed:
+            required += (COUNT_FIELDS + ["cnf_generation_seconds", "solver_initialization_seconds", "solve_seconds"]
+                         if task["method"] == "sat" else ["steps"])
+        if any(row.get(key) in (None, "") for key in required):
+            raise ValueError("completed trial is missing required measurements")
+        if completed and task["method"] == "sat" and sum(float(row[key]) for key in (
+            "cnf_generation_seconds", "solver_initialization_seconds", "solve_seconds"
+        )) > float(row["algorithm_total_seconds"]) + 1e-9:
+            raise ValueError("phase times exceed algorithm total")
         if task["method"] == "sat":
             n = task["n"]
             expected = [n*n, n, n*n*(n-1)//2, n*n*(n-1)//2,
@@ -104,6 +118,8 @@ def audit(rows, config, metadata):
                 raise ValueError("step budget mismatch")
             if row["steps"] and not 0 <= int(row["steps"]) <= task["max_steps"]:
                 raise ValueError("invalid steps")
+            if row["status"] == "LIMIT_REACHED" and int(row["steps"]) != task["max_steps"]:
+                raise ValueError("Min-Conflicts limit must exhaust the step budget")
             if row["status"] == "UNSAT":
                 raise ValueError("Min-Conflicts cannot prove UNSAT")
     return {"passed": True, "trials": len(rows), "valid_solutions": sum(success(row) for row in rows),

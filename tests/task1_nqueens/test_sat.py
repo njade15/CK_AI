@@ -146,6 +146,48 @@ class EncoderTests(unittest.TestCase):
 
 
 class SATSolverTests(unittest.TestCase):
+    def test_progress_preserves_outcome_and_returns_independent_phase_snapshots(self):
+        for n in (2, 4, 8):
+            with self.subTest(n=n):
+                solver = SATNQueensSolver(NQueensProblem(n))
+                plain = solver.solve()
+                snapshots = []
+                observed = solver.solve(progress=snapshots.append)
+                self.assertEqual(observed.status, plain.status)
+                self.assertEqual(observed.solution, plain.solution)
+                self.assertEqual(observed.message, plain.message)
+                self.assertEqual(len(snapshots), 3)
+                for index, key in enumerate(("cnf_generation_seconds",
+                                             "solver_initialization_seconds", "solve_seconds")):
+                    self.assertIn(key, snapshots[index])
+                    if index:
+                        self.assertNotIn(key, snapshots[index - 1])
+                self.assertNotIn("total_seconds", snapshots[-1])
+                snapshots[-1]["clauses_total"] = -1
+                self.assertEqual(observed.statistics["clauses_total"], plain.statistics["clauses_total"])
+                self.assertGreaterEqual(observed.elapsed_seconds, sum(
+                    observed.statistics[key] for key in ("cnf_generation_seconds",
+                    "solver_initialization_seconds", "solve_seconds")))
+
+    def test_progress_exception_after_loading_reports_error_and_cleans_up(self):
+        calls = []
+
+        def failing_callback(snapshot):
+            calls.append(snapshot)
+            if "solver_initialization_seconds" in snapshot:
+                raise RuntimeError("injected callback failure")
+
+        with patch(SOLVER_PATH) as constructor:
+            native = constructor.return_value
+            result = SATNQueensSolver(NQueensProblem(4)).solve(progress=failing_callback)
+            self.assertEqual(result.status, SolveStatus.ERROR)
+            self.assertIn("injected callback failure", result.message)
+            self.assertIsNone(result.solution)
+            native.solve.assert_not_called()
+            native.delete.assert_called_once_with()
+            self.assertNotIn("solve_seconds", result.statistics)
+            self.assertEqual(len(calls), 2)
+
     def test_real_glucose_sat_and_unsat(self):
         for n in (1, 2, 3, 4, 8):
             with self.subTest(n=n):

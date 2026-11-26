@@ -144,6 +144,38 @@ class BenchmarkTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             audit(rows, self.config, metadata)
 
+    def test_audit_rejects_missing_completed_metrics_and_wrong_timeout(self):
+        rows, metadata = self._unexecuted_fixture()
+        row = next(row for row in rows if row["method"] == "min-conflicts")
+        row.update({"status": "LIMIT_REACHED", "steps": str(self.config["mc_max_steps"]),
+                    "algorithm_total_seconds": "0.1", "observed_wall_seconds": "0.2"})
+        self.assertTrue(audit(rows, self.config, metadata)["passed"])
+        for key, value in (("steps", ""), ("algorithm_total_seconds", ""),
+                           ("observed_wall_seconds", ""), ("steps", "1"),
+                           ("timeout_seconds", "0"), ("timeout_seconds", "999")):
+            changed = deepcopy(rows)
+            next(r for r in changed if r["trial_id"] == row["trial_id"])[key] = value
+            with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                audit(changed, self.config, metadata)
+
+    def test_audit_requires_sat_counts_and_consistent_phase_times(self):
+        rows, metadata = self._unexecuted_fixture()
+        row = rows[0]
+        row.update({"status": "SAT", "solution_valid": "True",
+                    "solution": "[[0,1],[1,3],[2,0],[3,2]]", "algorithm_total_seconds": "0.4",
+                    "observed_wall_seconds": "0.5", "cnf_generation_seconds": "0.1",
+                    "solver_initialization_seconds": "0.1", "solve_seconds": "0.1"})
+        from source.task1_nqueens.benchmark import COUNT_FIELDS
+        for key, value in zip(COUNT_FIELDS, (16, 4, 24, 24, 14, 14, 80)):
+            row[key] = str(value)
+        # Synthetic timing record tests only the audit contract.
+        self.assertTrue(audit(rows, self.config, metadata)["passed"])
+        for key, value in (("clauses_total", ""), ("solve_seconds", "1")):
+            changed = deepcopy(rows)
+            changed[0][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                audit(changed, self.config, metadata)
+
 
 if __name__ == "__main__":
     unittest.main()

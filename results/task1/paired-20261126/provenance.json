@@ -1,0 +1,10 @@
+{
+  "benchmark_source_commit": "2781502d6e92eefda54fdb6c772c8d65a40c0330",
+  "benchmark_working_tree_dirty": false,
+  "input_sha256": {
+    "trials.csv": "9d6892a903a07fb932b9d40d8f72de9d897ab70cafc8a89c013a6d327058a9a1",
+    "config.json": "beebdf2cd50abb8a7990dca7fd8ac636a60262950ac64e05b3eebe6cf3c522ce",
+    "metadata.json": "fac7abfe2a5f0c1cff56a85be8e1d806f985e7109f4a022f2acf6ffd94fad3e5"
+  },
+  "analysis_module_sha256": "58fb9f96d1aec336f2804328b85b1d12048bcb0c02ee98892722d15f2bd5b060"
+}

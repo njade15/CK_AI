@@ -27,24 +27,26 @@ Các solver đo thời gian thực tế bằng `time.perf_counter()`. Không dù
 
 Chạy từ thư mục gốc repository. Không cần kích hoạt môi trường ảo.
 
-Windows PowerShell:
+Windows PowerShell (đã kiểm chứng trên Windows 11, Python 3.12.10):
 
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m unittest discover -s tests -t . -v
+.\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m source.task1_nqueens 4
 .\.venv\Scripts\python.exe -m source.task1_nqueens 8
 .\.venv\Scripts\python.exe -m source.task1_nqueens 8 --method min-conflicts --seed 42 --max-steps 1000
 .\.venv\Scripts\python.exe -m source.task1_nqueens 8 --method min-conflicts --strategy max_conflicted --seed 42 --max-steps 1000
 ```
 
-macOS / Linux (Python 3.10 trở lên):
+macOS / Linux (hướng dẫn dự kiến, chưa chạy trên hai hệ điều hành này; Python 3.10 trở lên):
 
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m unittest discover -s tests -t . -v
+.venv/bin/python -m pip check
 .venv/bin/python -m source.task1_nqueens 4
 .venv/bin/python -m source.task1_nqueens 8
 .venv/bin/python -m source.task1_nqueens 8 --method min-conflicts --seed 42 --max-steps 1000
@@ -55,7 +57,7 @@ CLI mặc định dùng SAT; `--method min-conflicts` chọn tìm kiếm cục b
 
 Một bước Min-Conflicts là một lần chọn quân, đánh giá mọi hàng, phá hòa và gán hàng; gán lại hàng cũ vẫn tính bước. Kiểm tra trạng thái trước bước đầu và sau cập nhật cuối. `max_steps=0` trả SAT nếu trạng thái đầu đã đúng, ngược lại LIMIT_REACHED. Mọi nghiệm đều qua validator độc lập; Min-Conflicts không trả UNSAT.
 
-Giả thuyết cần kiểm chứng: max_conflicted có thể giảm số bước nhưng thêm chi phí chọn biến. Chưa có số liệu benchmark để kết luận tốt hơn; một lần chạy thành công không phải bằng chứng so sánh hiệu năng.
+Giả thuyết nghiên cứu: max_conflicted có thể giảm số bước nhưng thêm chi phí chọn biến. Đã có [benchmark trên Windows](../../results/task1/main-20261126/ANALYSIS.md); kết quả trên một máy và tập seed hữu hạn chưa chứng minh heuristic tốt hơn nói chung. Xem [xác minh trước PR](../../docs/task1/VERIFICATION.md) và [so sánh ghép cặp bổ sung](../../results/task1/paired-20261126/REPORT.md).
 
 Ví dụ chỉ in lời giải N=4 đã biết, không gọi solver, từ PowerShell:
 

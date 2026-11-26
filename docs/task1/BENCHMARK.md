@@ -30,7 +30,8 @@ Chi phí toàn bộ báo tổng/mean/median wall trên mọi lượt đã thực
 
 ## Lệnh chạy
 
-Từ thư mục gốc repository:
+Từ thư mục gốc repository. PowerShell đã kiểm chứng trên Windows 11/Python 3.12.10.
+Không kích hoạt venv nên không cần đổi ExecutionPolicy. Dùng thư mục mới cho mỗi lần chạy.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-benchmark.txt
@@ -42,8 +43,40 @@ Từ thư mục gốc repository:
 # Sau khi commit mã, đảm bảo working tree sạch rồi mới chạy chính thức.
 .\.venv\Scripts\python.exe -m source.task1_nqueens.benchmark --config docs/task1/benchmark_full.json --output results/task1/main-new
 
-# Audit, tổng hợp và vẽ lại từ dữ liệu gốc, không chạy lại solver.
-.\.venv\Scripts\python.exe -m source.task1_nqueens.benchmark_analysis results/task1/main-new
+# Audit và vẽ lại bản SAO tạm; analyzer ghi kết quả vào thư mục được truyền vào.
+# Không truyền thư mục dữ liệu chính thức khi chỉ muốn xác minh.
+$analysisDir = Join-Path ([IO.Path]::GetTempPath()) ("nqueens-analysis-" + [guid]::NewGuid())
+Copy-Item -LiteralPath results/task1/main-20261126 -Destination $analysisDir -Recurse
+.\.venv\Scripts\python.exe -m source.task1_nqueens.benchmark_analysis $analysisDir
+$pairedDir = Join-Path ([IO.Path]::GetTempPath()) ("nqueens-paired-" + [guid]::NewGuid())
+.\.venv\Scripts\python.exe -m source.task1_nqueens.paired_analysis $analysisDir $pairedDir
 ```
+
+macOS/Linux: hướng dẫn dự kiến, chưa được chạy trên hai hệ điều hành này.
+Cần Python 3.10 trở lên và cài được wheel/build native của `python-sat` tương ứng.
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-benchmark.txt
+.venv/bin/python -m pip check
+.venv/bin/python -m unittest discover -s tests -t . -v
+.venv/bin/python -m source.task1_nqueens.benchmark --config docs/task1/benchmark_smoke.json --output results/task1/smoke-new --allow-dirty
+# Chỉ chạy chính thức sau khi mã được commit và working tree sạch.
+.venv/bin/python -m source.task1_nqueens.benchmark --config docs/task1/benchmark_full.json --output results/task1/main-new
+analysis_dir=$(mktemp -d)
+cp -R results/task1/main-20261126/. "$analysis_dir/"
+.venv/bin/python -m source.task1_nqueens.benchmark_analysis "$analysis_dir"
+# paired_analysis yêu cầu đích chưa tồn tại; dùng đường dẫn con mới.
+.venv/bin/python -m source.task1_nqueens.paired_analysis "$analysis_dir" "$analysis_dir/paired"
+```
+
+Phân tích ghép cặp là phần bổ sung: [báo cáo](../../results/task1/paired-20261126/REPORT.md),
+[mọi cặp và trạng thái loại khỏi tập cùng thành công](../../results/task1/paired-20261126/pairs.csv).
+Chênh lệch được tính từng cặp `max - random`, rồi lấy trung vị; không lấy hiệu hai trung vị thay thế.
+Các thống kê thành công có điều kiện này không thay cho tỷ lệ thành công và chi phí toàn bộ lượt.
+Không chạy lại solver hoặc sửa dữ liệu gốc. Audit trước khi phân tích cũng yêu cầu đủ số đếm,
+phép đo cho lượt hoàn tất, tổng pha SAT không vượt tổng thuật toán và ngân sách hợp lệ.
+
+Kết quả kiểm chứng thực tế, checksum và giới hạn môi trường ở [VERIFICATION.md](VERIFICATION.md).
 
 Với smoke trong quá trình phát triển, có thể dùng đường dẫn tạm ngoài repository để không làm dirty checkout trước lượt chính thức. Sao lưu smoke riêng sau khi lượt chính thức đã ghi snapshot clean. Thời gian không tái lập từng giá trị do nhiễu OS; cấu hình, seed, trạng thái đầu và mã nguồn tái lập được. Chỉ mô tả dữ liệu đo, không ngoại suy từ một máy, một tập seed hoặc các trung vị có điều kiện. Chưa cam kết tương đương hiệu năng trên macOS/Linux.
