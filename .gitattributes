@@ -1,0 +1,2 @@
+# Preserve benchmark bytes so SHA256 checksums survive Git checkouts.
+results/task1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
