@@ -1,7 +1,8 @@
 # Xác minh Task 1 trước PR
 
-Ngày kiểm tra: 26/11/2026. Kết luận: **đủ điều kiện kỹ thuật để tạo PR cho Task 1**.
-Chưa tạo PR, push hoặc merge. Nghiệm thu môn học/gói nộp cuối là bước riêng.
+Ngày rà soát ban đầu: 26/11/2026. Kết luận: **đủ điều kiện kỹ thuật để tạo PR cho Task 1**.
+Trạng thái tại lần rà soát ban đầu: chưa tạo PR, push hoặc merge.
+Phiên chuẩn bị xuất bản ngày 27/11 được ghi riêng ở cuối tài liệu. Nghiệm thu môn học/gói nộp cuối là bước riêng.
 
 ## Git và phiên bản được kiểm tra
 
@@ -241,3 +242,62 @@ Tái tạo kết quả dẫn xuất khớp từng byte, nên không cần chạy
 - Chưa nghiệm thu lại toàn bộ PDF đề, định dạng báo cáo/gói nộp và tiêu chí chấm cuối.
   Đây là xác minh kỹ thuật theo các yêu cầu Task 1 đã nêu trong hội thoại.
 - Có thể tạo PR để người phụ trách review Task 1. Chưa được coi là phê duyệt merge cuối.
+
+## Kiểm tra trước push và PR ngày 27/11/2026
+
+Đầu phiên: nhánh `feature/task1-nqueens`, HEAD `1e8e084fc60ac565c9132987df39515a079e55a0`,
+working tree sạch. Đã xác nhận commit này chứa tài liệu xác minh, đọc lại README và tìm
+hướng dẫn repository; không tìm thấy AGENTS.md, CONTRIBUTING hoặc PR template.
+Origin vẫn là `https://github.com/njade15/CK_AI.git` cho fetch và push.
+
+Đã chạy `git fetch origin` thành công. `origin/main` mới fetch là
+`d55dcddbfb96ab6a8a0808279bd0c9b5bb2ecbf6`; `git rev-list --left-right --count HEAD...origin/main`
+trả `7 0`, `git log HEAD..origin/main` rỗng và `git merge-base --is-ancestor origin/main HEAD` đạt.
+Không có commit main mới cần tích hợp, nên không tạo merge commit hoặc đổi tên nhánh.
+Không có nhánh feature tương ứng trên origin lúc kiểm tra ban đầu.
+
+Môi trường thực chạy: **venv hiện có tại `.venv` của repository**, không phải venv sạch mới
+của phiên 26/11. Windows 11 `10.0.26200`, Python 3.12.10 AMD64,
+python-sat 1.9.dev25 và matplotlib 3.11.2. Không cần cài thêm dependency.
+
+Các lệnh đã chạy tại gốc repository:
+
+```powershell
+.\.venv\Scripts\python.exe -m compileall -q source/task1_nqueens tests/task1_nqueens
+.\.venv\Scripts\python.exe -m unittest discover -s tests -t . -v
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m source.task1_nqueens 4
+.\.venv\Scripts\python.exe -m source.task1_nqueens 8
+.\.venv\Scripts\python.exe -m source.task1_nqueens 2
+.\.venv\Scripts\python.exe -m source.task1_nqueens 3
+.\.venv\Scripts\python.exe -m source.task1_nqueens 8 --method min-conflicts --strategy random_conflicted --seed 42 --max-steps 1000
+.\.venv\Scripts\python.exe -m source.task1_nqueens 8 --method min-conflicts --strategy max_conflicted --seed 42 --max-steps 1000
+.\.venv\Scripts\python.exe -m source.task1_nqueens 4 --method min-conflicts --max-steps 0 --initial-state 0,0,0,0
+git diff --check
+git diff --check origin/main...HEAD
+```
+
+Compile đạt; **105 tests đạt** (lần chạy 4,338 s); pip check trả
+`No broken requirements found`. Smoke được gọi qua subprocess với timeout 30 s/lệnh:
+SAT N=4/8, UNSAT N=2/3 và hai MC N=8 đều đúng trạng thái/exit 0;
+max_steps=0 với trạng thái xung đột trả LIMIT_REACHED/exit 3 và không in nghiệm.
+Kiểm tra lại whitespace working diff và toàn bộ diff PR đều đạt.
+
+Đã tính SHA256 lại bằng hashlib cho mọi dòng của ba manifest main/smoke/paired:
+**23 tệp đều khớp cả working tree và blob HEAD**. Không chạy lại hoặc đổi số liệu benchmark.
+Các thuật toán, benchmark runner và phạm vi đo không có thay đổi so với commit rà soát `1e8e084`;
+số liệu chính thức vẫn gắn với `2781502`, không gắn lại cho commit chuẩn bị PR.
+
+Đã review danh sách 62 tệp của `git diff --name-status origin/main...HEAD`: chỉ cây mã/tests/docs/results
+Task 1 cùng README, requirements, package init và cấu hình Git/Python dùng chung.
+Không sửa Task 2/3. Không có venv, cache hoặc tên tệp credential trong diff; kiểm tra thêm
+các mẫu private key, token GitHub và AWS access key trong nội dung đề xuất không phát hiện mẫu khớp.
+Đây là kiểm tra cơ bản, không phải kiểm toán bí mật toàn lịch sử.
+
+Không có `.github/workflows` hoặc cấu hình CI trong phiên bản chuẩn bị push; kiểm thử cục bộ
+không được gọi là CI pass. CI/status cho đúng head PR sẽ được kiểm tra trên GitHub sau khi xuất bản.
+Chỉ tài liệu xác minh được bổ sung trong phiên này; không có sửa mã do tích hợp main.
+Commit xuất bản có thể lấy bằng `git log -1 --format=%H -- docs/task1/VERIFICATION.md`.
+
+Giữ nguyên giới hạn: **chưa thực chạy macOS/Linux**, chưa nghiệm thu gói nộp theo toàn bộ PDF đề.
+PR phục vụ review; chưa phê duyệt merge, không bật auto-merge hoặc sửa branch protection.
